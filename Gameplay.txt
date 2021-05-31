@@ -1,0 +1,220 @@
+
+package BrickBracker;
+//----------------PAKET EKLEMELERÝ------------
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+//OK TUÞLARININ YÖNLENDÝRÝLMESÝ ÝÇÝN KEYLISTENER ÝMPLEMENT EDÝLDÝ
+//TOPU YÖNLENDÝRMEK ÝÇÝN ACTIONLISTENER
+public class Gameplay extends JPanel implements KeyListener,ActionListener {
+        private boolean play=false;//PROGRAM ÇALIÞTIRILDIÐINDA OYUNUN KENDÝ KENDÝNE BAÞLAMAMASI ÝÇÝN
+        private int score=0;//BAÞLANGIÇ SKORU
+        private int totalBricks=21;//TOPLAM TUÐLA SAYISI
+        private Timer timer;//TOPUN HIZI ÝÇÝN ZAMANLAYICI
+        private int delay=8;//TOPUN HIZI
+        private int playerx=310;//ÇUBUÐUN BAÞLANGIÇ KONUMU
+        private int ballposx=120;//TOPUN BAÞLANGIÇ KONUMU X KOORDÝNATI ÝÇÝN
+        private int ballposy=350;//TOPUN BAÞLANGIÇ KONUMU Y KOORDÝNATI ÝÇÝN
+        private int ballxdir=-1;//TOPUN X KOORDÝNATINDA YÖNÜ
+        private int ballydir=-2;//TOPUN Y KOORDÝNATINDA YÖNÜ
+        //EÐER TOPUN X EKSENÝ - OLURSA TOP SOLA,+ OLURSA SAGA GÝDER
+        //EÐER TOPUN Y EKSENÝ - OLURSA TOP YUKARI,+ OLURSA AÞAÐI ÝNER
+        
+        private MapGenerator map;
+        
+    public Gameplay(){
+        map= new MapGenerator(3,7);//MapGenerator sýnýfý için nesne tanýmlandý.
+        //TUÐLA SAYISI DEÐÝÞTÝRMEK ÝSTENÝRSE SATIR VE SÜTUN SAYISI DEÐÝÞTÝRÝLÝR.
+        //ÖR:3*7=21 TUÐLA YAPAR.DEÐÝÞTÝRMEK ÝSTENÝRSE TOTALBRÝCKS DEÐÝÞKENÝNÝN SAYISINI DA DEÐÝÞTÝR!
+        addKeyListener(this);//KEYLÝSTENER EKLENDÝ
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+        timer=new Timer(delay,this);//TÝMER ÝÇÝN NESNE TANIMLAMASI
+        timer.start();//ZAMANLAMA BAÞLATILDI
+    }
+       public void paint(Graphics g){
+           //ÞEKÝLLERÝ ÇÝZMEK ÝÇÝN GRAFÝK KULLANILDI
+           
+           //ARKAPLAN
+           g.setColor(Color.DARK_GRAY);//ARKA PLAN RENGÝ GRÝ AYARLANDI
+           g.fillRect(1, 1, 692, 592);//ARKA PLAN ÝÇÝN DÝKDÖRTGEN OLUÞTURULDU.
+                                //ÝLK ÝKÝ DEÐER KONUM,SON ÝKÝ DEÐER BOYUT
+           
+           //HARÝTAYI (MAP'Ý) ÇÝZMEK ÝÇÝN
+           map.draw((Graphics2D )g);
+           
+           //KENARLIKLAR(PANEL ÝÇÝN)
+           g.setColor(Color.BLACK);
+           g.fillRect(0, 0, 3, 592);
+           g.fillRect(0, 0, 692, 3);
+           g.fillRect(692, 0, 3, 592);
+           
+           //SKOR
+           g.setColor(Color.BLACK);//SKOR RENGÝ
+           g.setFont(new Font("serif",Font.BOLD,25));//ÝLKÝ YAZI KAREKTERÝ,KALINLIK,BOYUT
+           g.drawString(""+score,590,30);//SKOR DEÐERÝ VE KONUMU(X,Y)
+           
+            //ÇUBUK
+           g.setColor(Color.BLACK);//ÇUBUK RENGÝ
+           g.fillRect(playerx, 550, 110, 8);//ÇUBUK KONUM VE BOYUTU
+           
+            //TOP
+           g.setColor(Color.BLACK);//TOP RENGÝ
+           g.fillOval(ballposx, ballposy, 20, 20);//TOP KONUMU VE BOYUTU
+           //KONUM DEÐERLERÝNÝ DEÐÝÞKEN OLARAK YAZDIK KÝ OYUN BOYUNCA TOPUN KONUMUNU DEÐÝÞTÝREBÝLELÝM
+           if(totalBricks<=0){
+               //EÐER BÜTÜN TUÐLALAR KIRILMIÞSA
+               play=false;//OYUNU SONLANDIRDIK
+               ballxdir=0;//TOPU DURDURDUK
+               ballydir=0;//TOPU DURDURDUK
+               g.setColor(Color.RED);//ÇIKTI VERMEK ÝÇÝN
+               g.setFont(new Font("serif",Font.BOLD,30));//ÇIKTI
+               g.drawString("You won,Scores:"+score,260,300);//ÇIKTI
+               
+               g.setFont(new Font("serif",Font.BOLD,30));//ÇIKTI
+               g.drawString("Press Enter to Restart",230,350);//ÇIKTI
+           }
+           
+           if(ballposy>570){
+               //EÐER TOP ÇUBUÐA DEÐMEZSE
+               play=false;//OYUNU SONLANDIRDIK
+               ballxdir=0;//TOPUN HAREKETÝNÝ DURDURDUK
+               ballydir=0;//TOPUN HAREKETÝNÝ DURDURDUK
+               g.setColor(Color.BLACK);//OYUNUN BÝTTÝÐÝNÝ GÖSTERMEK ÝÇÝN ÇIKTI VERÝYORUZ 
+               g.setFont(new Font("serif",Font.BOLD,30));//ÝFADENÝN KAREKTERÝ,KALINLIK VE BOYUTU
+               g.drawString("Game Over,Scores:"+score,190,300);//STRÝNG DEÐERÝ VE KONUM
+               
+               g.setFont(new Font("serif",Font.BOLD,20));//OYUN TEKRAR OYNANMAK ÝSTENÝRSE DÝYE ÇIKTI
+               g.drawString("Press Enter to Restart",230,350);//ÇIKTI VE BOYUTU
+           }
+           
+           g.dispose();//BU METOT SADECE BU PROGRAMDAKÝ ARAYÜZÜ KAPATIR
+           //EÐER SYSTEM.EXIT METODUNU KULLANSAYDIK BÜTÜN PENCERELERÝ KAPATIRDI
+           
+       } 
+       //-------------ABSTRACT METOTLARI------------------
+    @Override
+    public void keyTyped(KeyEvent ke) {}
+    @Override
+    public void keyReleased(KeyEvent ke) {}
+
+    @Override
+    public void keyPressed(KeyEvent ke) {
+        //TUÞA BASILIMDA YAPILACAKLAR
+        
+        //EÐER SAÐ OK TUÞUNA BASILIRSA
+        if(ke.getKeyCode()==KeyEvent.VK_RIGHT){
+            //ÇUBUÐUN PANEL DIÞINA ÇIKMAMASI ÝÇÝN KOÞUL OLUÞTURDUK.
+            if(playerx>=600){
+                playerx=600;
+            }
+            else{
+                moveRight();//moveRight FONKÝSÝYONUNU ÇAÐIR
+                            //EÐER SAÐ OK TUÞUNA BASILMIÞSA ÇUBUK KONUMU SAÐA 20 KAYDIR
+            }
+            
+        }
+        //EÐER SOL OK TUÞUNA BASILMIÞSA
+        if(ke.getKeyCode()==KeyEvent.VK_LEFT){
+            if(playerx<10){
+                playerx=10;
+            }
+            else{
+                moveLeft();
+            }   
+        } 
+        if(ke.getKeyCode()==KeyEvent.VK_ENTER){
+            //EÐER ENTER'A BASILIRSA OYUN ZATEN SONLANMIÞ OLUYOR
+            if(!play){//EÐER OYUN SONLANMIÞSA
+                play=true;//OYUNU TEKRAR BAÞLATMAK ÝÇÝN
+                ballposx=120;//TOPUN BAÞLANGIÇ X KOORDÝNAT DEÐERÝ
+                ballposy=350;//TOPUN BAÞLANGIÇ Y KOORDÝNAT DEÐERÝ
+                ballxdir=-1;//TOPUN BAÞLANGIÇ X YÖNÜ-SOL
+                ballydir=-2;//TOPUN BAÞLANGIÇ Y YÖNÜ-YUKARI
+                playerx=310;
+                score=0;//BAÞLANGIÇ SKORU
+                totalBricks=21;
+                map=new MapGenerator(3,7);
+                repaint();//BÝZÝM OLUÞTURDUÐUMUZ PAÝNT(ÇÝZÝM) FONKÝSÝYONUNU ÇAÐIRDIK
+                //ÇÜNKÜ ÇUBUÐUN KONUMU DEÐÝÞTÝRÝLDÝÐÝNDE TEKRAR AYNI PANELÝN ÇÝZÝLMESÝ ÝÇÝN ÇAÐIRMAMIZ 
+                //GEREKÝYOR
+            }
+        }
+    }
+    public void moveRight(){
+            play=true;
+            playerx+=20;//ÇUBUK KONUMUNU 20 SAÐA KAYDIR
+        }
+      public void moveLeft(){
+            play=true;
+            playerx-=20;//ÇUBUK KONUMUNU 20 SOLA KAYDIR
+        } 
+       
+     @Override
+    public void actionPerformed(ActionEvent ae) {
+      timer.start();
+      if(new Rectangle(ballposx,ballposy,20,20).intersects(new Rectangle(playerx,550,100,8))){
+          ballydir=-ballydir;
+      }
+      A: for(int i=0;i<map.map.length;i++){
+          for(int j=0;j<map.map[0].length;j++){
+              if(map.map[i][j]>0){//EÐER TUÐLA VARSA KÝ VAR
+                  int brickx=j*map.brickWidth+80;
+                  int bricky=i*map.brickHeight+50;
+                  int brickWidth=map.brickWidth;
+                  int brickHeight=map.brickHeight;
+                  
+                  Rectangle rect=new Rectangle(brickx,bricky,brickWidth,brickHeight);
+                  Rectangle ballRect=new Rectangle(ballposx,ballposy,20,20);
+                  Rectangle brickRect=rect;
+                  
+                  if(ballRect.intersects(brickRect)){//EÐER TUÐLA VE TOP KESÝÞÝRSE 
+                      //YANÝ TOP TUÐLALARI KIRARSA
+                      map.setBrickValue(0, i, j);//TUÐLALARI YOK ETMESÝ ÝÇÝN 
+                      //ÝLK DEÐERE 0 DEÐERÝNÝ VERDÝK.
+                      totalBricks--;//TUÐLA SAYISINI AZALTTIK.
+                      score+=5;//SKORU 5 ARTTIRDIK.
+                  if(ballposx + 19 <= brickRect.x || ballposx + 1 >= brickRect.x + brickRect.width){
+                     //TOP TUÐLAYA SAÐDAN YA DA SOLDAN ÇARPARSA 
+                      ballxdir=-ballxdir;//TOPU TERS YÖNE YÖNLENDÝRÝYORUZ
+                  }
+                  else{
+                      //EÐER TOP Y KOORDÝNATINDA ÇARPARSA
+                      ballydir=-ballydir;//TOPU TERS KOORDÝNATA YANÝ AÞAÐIYA YÖNLENDÝRÝYORUZ
+                  }
+                      break A;//DÖNGÜYÜ KIRIYORUZ
+                  }
+                  
+               
+              }
+          }
+      }
+      if(play){
+          ballposx+=ballxdir;
+          ballposy+=ballydir;
+          if(ballposx<0){
+              ballxdir=-ballxdir;
+          }
+          if(ballposy<0){
+              ballydir=-ballydir;
+          }
+          if(ballposx>670){
+              ballxdir=-ballxdir;
+          }
+         
+        }
+       repaint(); //TEKRAR ÇÝZDÝRMEK ÝÇÝN PAÝNT FONKSÝYONUNU ÇAÐIRDIK.
+    }
+     
+ 
+ 
+}

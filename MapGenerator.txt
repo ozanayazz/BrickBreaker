@@ -1,0 +1,55 @@
+
+package BrickBracker;
+//---------------PAKET YÜKLEMELERÝ---------------------------
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+
+
+public class MapGenerator {
+    public int map[][];//TUÐLA SAYISINI SONRADAN DEÐÝÞTÝREBÝLMEK ÝÇÝN BOYUTLANDIRILMADI
+    public int brickWidth;//TUÐLA GENÝÞLÝÐÝ
+    public int brickHeight;//TUÐLA YÜKSEKLÝÐÝ
+    public MapGenerator(int row,int col){
+        map=new int[row][col];
+        for(int i=0;i<map.length;i++){
+            for(int j=0;j<map[0].length;j++){
+                map[i][j]=1;//TUGLALARI ÇÝZMEK ÝÇÝN 1 DÝZÝNÝN BÜTÜN ELEMANLARINI
+                //1 EÞÝTLEDÝK 0 EÞÝTLERSEK TUÐLALAR GÖRÜNMEZ!(LOJÝK 1,0 MANT)
+            }
+        }
+        brickWidth=540/col;//TUÐLA GENÝÞLÝÐÝNÝ AYARLADIK
+        //540 PÝKSEKÝ SATIR SAYISINA BÖLDÜK
+        brickHeight=150/row;//TUÐLA YÜKSEKLÝÐÝNÝ AYARLADIK
+        //TUÐLA YÜKSEKLÝÐÝNÝ SÜTUN SAYISANA BÖLDÜK
+    }
+    //TUÐLALARI ÇÝZMEK ÝÇÝN AÞAÐIDAKÝ METOT KULLANILIYOR
+    public void draw(Graphics2D g){
+    for(int i=0;i<map.length;i++){
+        for(int j=0;j<map[0].length;j++){
+            if(map[i][j]>0){
+                g.setColor(Color.white);//TUÐLA RENGÝ
+                g.fillRect(j*brickWidth+80, i*brickHeight+50, brickWidth, brickHeight);
+                //ÝLK ÝKÝ DEÐER TUÐLALARIN KONUMU ÝÇÝN SON ÝKÝ DEÐER ÝSE BOYUT ÝÇÝN
+                //BURADA TUÐLALAR ÇÝZÝLDÝ ANCAK KENARLIK OLMADAN TUÐLALAR GÖZÜKMEZ
+                //EÐER DEÐERLER DEÐÝÞTÝRÝLÝRSE TUÐLA KENARLIK DEÐERLERÝNÝN DE DEÐÝÞMESÝ GEREK!
+                
+                g.setStroke(new BasicStroke(5));//ÇÝZÝLEN ÞEKLÝN KENARLANMASINI SAÐLIYOR
+                //ÝÇERÝSÝNDEKÝ DEÐER(5) KENARLIKLARIN KALINLIÐINI BELÝRLÝYOR.
+                g.setColor(Color.black);//TUÐLALARA KENARLIK EKLENÝYOR
+                //EÐER EKLENMEZSE TUÐLALARI GÖREMEYÝZ
+                //KENARLIK RENGÝ
+                g.drawRect(j*brickWidth+80, i*brickHeight+50, brickWidth, brickHeight);
+                //KENARLIK KONUM VE BOYUTLARI TUÐLA DEÐERLERÝ ÝLE AYNI OLMALI!
+            }
+        }
+    }
+}
+    public void setBrickValue(int value,int row,int col){
+        //BU FONKÝSÝYONU TUÐLALARI YOK ETMEK ÝÇÝN KULLANILIYOR.
+        //GAMEPLAYDEN GELEN TOP VE TUÐLA KESÝÞMESÝ SONUCU HER TUÐLA YOK EDÝLÝYOR
+        //BÖYLECE TUÐLALARI YOK OLUYOR YANÝ KIRILIYOR
+        map[row][col]=value;
+    }
+}

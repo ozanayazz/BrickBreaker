@@ -1,0 +1,22 @@
+
+package BrickBracker;
+//---------------PAKET YÜKLEMELERÝ----------
+import javax.swing.JFrame;
+
+
+public class Main {
+
+    
+    public static void main(String[] args) {
+        //-------------ARAYÜZ OLUÞUMU----------------
+        JFrame obj=new JFrame();//NESNE TANIMLAMASI
+        Gameplay gamePlay=new Gameplay();
+        obj.setBounds(10,10,700,600);//ÝLK ÝKÝ DEGER KONUM,DÝÐERLERÝ BOYUT
+        obj.setTitle("Breakout Ball");//ARAYÜZ ÝSMÝ
+        obj.setResizable(false);//PENCERE BOYUTUNU AYARLAMA YASAK!
+        obj.setVisible(true);//PENCERE GÖRÜNÜRLÜÐÜ
+        obj.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//KAPATTIGINDA ARKA PLANDA ÇALIÞMA
+        obj.add(gamePlay);//ARAYÜZ ÝÇERÝSÝNE PANEL YÜKLENDÝ
+    }
+    
+}
